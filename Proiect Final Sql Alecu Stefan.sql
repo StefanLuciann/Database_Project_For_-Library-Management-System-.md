@@ -105,6 +105,7 @@ INSERT INTO Loans (BookID, ReaderID, LoanDate, ReturnDate) VALUES
 
 
 
+
 -- Update the status of returned books to 'Available'
 UPDATE Books 
 SET Status = 'Available' 
@@ -165,11 +166,7 @@ GROUP BY Authors.AuthorID;
 SELECT Genre, COUNT(BookID) AS NumberOfBooks
 FROM Books GROUP BY Genre;
 
-UPDATE Books SET GenreID = 1 WHERE Title = 'Ion';  -- Novel
-UPDATE Books SET GenreID = 2 WHERE Title = 'A Lost Letter';  -- Play
-UPDATE Books SET GenreID = 3 WHERE Title = 'Childhood Memories';  -- Autobiography
-UPDATE Books SET GenreID = 4 WHERE Title = 'Poems of Light';  -- Poetry
-UPDATE Books SET GenreID = 1 WHERE Title = 'Maitreyi';  -- Novel
+
 
 
 -- Readers and Details of Loaned Books
