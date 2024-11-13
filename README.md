@@ -11,6 +11,9 @@ The scope of this project is to use all the SQL knowledge gained throughout the 
 Baza de date "Library Management System" a fost creată pentru a gestiona informațiile despre cărți, autori, cititori și împrumuturi. Aceasta permite stocarea și gestionarea eficientă a informațiilor relevante, precum titlurile cărților, datele de împrumut și informațiile personale ale cititorilor. Scopul este de a facilita accesul rapid și ușor la informații și de a urmări împrumuturile efectuate.
 
 ## Database Schema
+
+![EER Diagram](https://github.com/user-attachments/assets/1a90b1ce-b1f0-46cf-8920-c507b98bbc94)
+
 You can find below the database schema that was generated through Reverse Engineer and which contains all the tables and the relationships between them.
 
 - **Authors** is connected with **Books** through a **1:n** relationship which was implemented through **Authors.AuthorID** as a primary key and **Books.AuthorID** as a foreign key.
