@@ -75,10 +75,16 @@ CREATE TABLE BookLoans (
 ```
 After the database and the tables have been created, a few ALTER instructions were written in order to update the structure of the database, as described below:
 ```sql
+-- Adăugăm o coloană pentru a urmări statusul de disponibilitate a cărților
 ALTER TABLE Books ADD COLUMN Status VARCHAR(20) DEFAULT 'Available';
+
+-- Modificăm tipul de date pentru numerele de telefon în tabela Readers
 ALTER TABLE Readers MODIFY COLUMN PhoneNumber VARCHAR(20);
-ALTER TABLE Loans RENAME TO BookLoans;
-ALTER TABLE Books MODIFY COLUMN PublicationYear INT;
+
+-- Actualizăm statusul cărților returnate la 'Available'
+UPDATE Books 
+SET Status = 'Available' 
+WHERE BookID IN (SELECT BookID FROM BookLoans WHERE ReturnDate IS NOT NULL);
 ```
 
 ## DML (Data Manipulation Language)
@@ -129,16 +135,7 @@ INSERT INTO Genres (GenreName) VALUES
 After the insert, in order to prepare the data to be better suited for the testing process, I updated some data in the following way:
 
 ```sql
--- Adăugăm o coloană pentru a urmări statusul de disponibilitate a cărților
-ALTER TABLE Books ADD COLUMN Status VARCHAR(20) DEFAULT 'Available';
 
--- Modificăm tipul de date pentru numerele de telefon în tabela Readers
-ALTER TABLE Readers MODIFY COLUMN PhoneNumber VARCHAR(20);
-
--- Actualizăm statusul cărților returnate la 'Available'
-UPDATE Books 
-SET Status = 'Available' 
-WHERE BookID IN (SELECT BookID FROM BookLoans WHERE ReturnDate IS NOT NULL);
 
 -- Setăm valorile corespunzătoare în Books pentru a asocia cărțile cu genurile din tabela Genres
 UPDATE Books SET GenreID = 1 WHERE Title = 'Ion';  -- Roman
