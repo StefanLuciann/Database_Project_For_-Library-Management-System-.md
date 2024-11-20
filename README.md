@@ -31,7 +31,7 @@ The following instructions were written in the scope of CREATING the structure o
 CREATE DATABASE LibraryManagement;
 USE LibraryManagement;
 
---- Tabela Authors (Autori)
+ -- Table Authors(Autori)
 CREATE TABLE Authors (
     AuthorID INT AUTO_INCREMENT PRIMARY KEY,
     LastName VARCHAR(50),
@@ -39,7 +39,7 @@ CREATE TABLE Authors (
     BirthDate DATE
 );
 
--- Tabela Books (Cărți)
+-- Table Books (Cărți)
 CREATE TABLE Books (
     BookID INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(100),
@@ -49,13 +49,13 @@ CREATE TABLE Books (
     FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
 );
 
--- Tabela Genres (Genuri)
+-- Table Genres (Genuri)
 CREATE TABLE Genres (
     GenreID INT AUTO_INCREMENT PRIMARY KEY,
     GenreName VARCHAR(50)
 );
 
--- Tabela Readers (Cititori)
+-- Table Readers (Cititori)
 CREATE TABLE Readers (
     ReaderID INT AUTO_INCREMENT PRIMARY KEY,
     LastName VARCHAR(50),
@@ -64,7 +64,7 @@ CREATE TABLE Readers (
     PhoneNumber VARCHAR(20)
 );
 
--- Tabela Loans (Împrumuturi)
+-- Table Loans (Împrumuturi)
 CREATE TABLE BookLoans (
     LoanID INT AUTO_INCREMENT PRIMARY KEY,
     BookID INT,
@@ -77,13 +77,13 @@ CREATE TABLE BookLoans (
 ```
 After the database and the tables have been created, a few ALTER instructions were written in order to update the structure of the database, as described below:
 ```sql
--- Adăugăm o coloană pentru a urmări statusul de disponibilitate a cărților
+-- We add a column to track the availability status of the books.
 ALTER TABLE Books ADD COLUMN Status VARCHAR(20) DEFAULT 'Available';
 
--- Modificăm tipul de date pentru numerele de telefon în tabela Readers
+-- We modify the data type for phone numbers in the Readers table
 ALTER TABLE Readers MODIFY COLUMN PhoneNumber VARCHAR(20);
 
--- Actualizăm statusul cărților returnate la 'Available'
+-- We update the status of returned books to 'Available'
 UPDATE Books 
 SET Status = 'Available' 
 WHERE BookID IN (SELECT BookID FROM BookLoans WHERE ReturnDate IS NOT NULL);
@@ -95,7 +95,7 @@ In order to be able to use the database, I populated the tables with various dat
 Below you can find all the insert instructions that were created in the scope of this project:
 
 ```sql
--- Inserare date în tabelul Authors
+-- Insert data into the Authors table
 INSERT INTO Authors (LastName, FirstName, BirthDate) VALUES
 ('Rebreanu', 'Liviu', '1885-11-27'),
 ('Caragiale', 'Ion Luca', '1852-01-30'),
@@ -103,7 +103,7 @@ INSERT INTO Authors (LastName, FirstName, BirthDate) VALUES
 ('Blaga', 'Lucian', '1895-05-09'),
 ('Eliade', 'Mircea', '1907-03-09');
 
--- Inserare date în tabelul Books
+-- Insert data into the Books table.
 INSERT INTO Books (Title, PublicationYear, Genre, AuthorID) VALUES
 ('Ion', 1920, 'Novel', 1),
 ('A Lost Letter', 1884, 'Play', 2),
@@ -111,20 +111,20 @@ INSERT INTO Books (Title, PublicationYear, Genre, AuthorID) VALUES
 ('Poems of Light', 1919, 'Poetry', 4),
 ('Maitreyi', 1933, 'Novel', 5);
 
--- Inserare date în tabelul Readers
+-- Insert data into the Readers table.
 INSERT INTO Readers (LastName, FirstName, Email, PhoneNumber) VALUES
 ('Marin', 'Andrei', 'andrei.marin@example.com', '0730123456'),
 ('Dumitrescu', 'Ioana', 'ioana.dumitrescu@example.com', '0732123457'),
 ('Vasilescu', 'Mihai', 'mihai.vasilescu@example.com', '0745123458'),
 ('Popescu', 'Ana', 'ana.popescu@example.com', '0721234567');
 
--- Inserare date în tabelul BookLoans
+-- Insert data into the BookLoans table
 INSERT INTO BookLoans (BookID, ReaderID, LoanDate, ReturnDate) VALUES
    (1, 1, '2024-01-05', '2024-01-15'),
    (2, 2, '2024-01-10', NULL),
    (3, 3, '2024-01-12', '2024-01-20');
 
--- Inserare date în tabelul Genres
+-- Insert data into the Genres table.
 INSERT INTO Genres (GenreName) VALUES
 ('Novel'),
 ('Play'),
@@ -139,7 +139,7 @@ After the insert, in order to prepare the data to be better suited for the testi
 ```sql
 
 
--- Setăm valorile corespunzătoare în Books pentru a asocia cărțile cu genurile din tabela Genres
+-- We set the corresponding values in the Books table to associate the books with the genres in the Genres table
 UPDATE Books SET GenreID = 1 WHERE Title = 'Ion';  -- Roman
 UPDATE Books SET GenreID = 2 WHERE Title = 'A Lost Letter';  -- Piesă
 UPDATE Books SET GenreID = 3 WHERE Title = 'Childhood Memories';  -- Autobiografie
@@ -151,7 +151,7 @@ UPDATE Books SET GenreID = 1 WHERE Title = 'Maitreyi';  -- Roman
 After the testing process, I deleted the data that was no longer relevant in order to preserve the database clean:
 
 ```sql
--- Ștergem toate înregistrările de împrumut mai vechi de o anumită dată
+-- We delete all loan records older than a certain date.
 DELETE FROM BookLoans 
 WHERE ReturnDate < '2024-01-01';
 
@@ -160,44 +160,44 @@ WHERE ReturnDate < '2024-01-01';
 ### DQL (Data Query Language)
 In order to simulate various scenarios that might happen in real life, I created the following queries that would cover multiple potential real-life situations:
 ```sql
--- Selectăm toate cărțile împrumutate în prezent
+-- We select all books currently on loan.
 SELECT Title FROM Books 
 JOIN BookLoans ON Books.BookID = BookLoans.BookID 
 WHERE BookLoans.ReturnDate IS NULL;
 
--- Numărăm numărul de împrumuturi pentru fiecare cititor
+-- We count the number of loans for each reader.
 SELECT Readers.LastName, Readers.FirstName, COUNT(BookLoans.LoanID) AS LoanCount
 FROM Readers
 JOIN BookLoans ON Readers.ReaderID = BookLoans.ReaderID
 GROUP BY Readers.LastName, Readers.FirstName;
 
--- Selectăm toți cititorii care au împrumutat romane
+-- We select all readers who have borrowed novels.
 SELECT Readers.LastName AS ReaderLastName, Readers.FirstName, Books.Title AS BorrowedBook
 FROM Readers
 JOIN BookLoans ON Readers.ReaderID = BookLoans.ReaderID
 JOIN Books ON BookLoans.BookID = Books.BookID
 WHERE Books.Genre = 'Novel';
 
--- Selectăm numărul de împrumuturi pentru fiecare gen de carte
+-- We select the number of loans for each book genre.
 SELECT Genre, COUNT(BookLoans.LoanID) AS TotalLoans
 FROM Books
 JOIN BookLoans ON Books.BookID = BookLoans.BookID
 GROUP BY Genre;
 
--- Cărți care nu au fost niciodată împrumutate
+-- Books that have never been borrowed.
 SELECT Title FROM Books
 WHERE BookID NOT IN (SELECT BookID FROM BookLoans);
 
--- Cititori fără niciun împrumut (utilizând LEFT JOIN)
+-- Readers with no loans (using LEFT JOIN).
 SELECT Readers.LastName, Readers.FirstName 
 FROM Readers
 LEFT JOIN BookLoans ON Readers.ReaderID = BookLoans.ReaderID
 WHERE BookLoans.LoanID IS NULL;
 
--- Funcții agregate pentru a găsi cele mai vechi și cele mai noi cărți
+-- Aggregate functions to find the oldest and newest books.
 SELECT MIN(PublicationYear) AS OldestYear, MAX(PublicationYear) AS NewestYear FROM Books;
 
--- Media anului de publicare pentru fiecare autor
+-- The average publication year for each author.
 SELECT 
     Authors.LastName,
     Authors.FirstName,
@@ -205,53 +205,53 @@ SELECT
 FROM Authors LEFT JOIN Books ON Authors.AuthorID = Books.AuthorID
 GROUP BY Authors.AuthorID;
 
--- Numărăm cărțile în funcție de gen
+-- We count the books by genre.
 SELECT Genre, COUNT(BookID) AS NumberOfBooks
 FROM Books GROUP BY Genre;
 
--- Selectăm toate cărțile scrise de un anumit autor, de exemplu, Ion Luca Caragiale
+-- We select all books written by a specific author, for example, Ion Luca Caragiale
 SELECT Books.Title
 FROM Books
 JOIN Authors ON Books.AuthorID = Authors.AuthorID
 WHERE Authors.LastName = 'Caragiale' AND Authors.FirstName = 'Ion Luca';
 
--- Selectăm numărul total de cărți din bibliotecă
+-- We select the total number of books in the library
 SELECT COUNT(BookID) AS TotalBooks FROM Books;
 
--- Afișăm toate cărțile împreună cu numele autorilor lor
+-- We display all the books along with the names of their authors
 SELECT Books.Title, Authors.LastName, Authors.FirstName
 FROM Books
 JOIN Authors ON Books.AuthorID = Authors.AuthorID;
 
--- Afișăm toate cărțile împreună cu statusul lor (Disponibil/Împrumutat)
+-- We display all the books along with their status (Available/On loan)
 SELECT Title, Status FROM Books;
 
--- Afișăm cititorii care au împrumutat cărți, împreună cu titlurile cărților respective
+-- We display the readers who have borrowed books, along with the titles of those books
 SELECT Readers.LastName, Readers.FirstName, Books.Title
 FROM Readers
 JOIN BookLoans ON Readers.ReaderID = BookLoans.ReaderID
 JOIN Books ON BookLoans.BookID = Books.BookID;
 
--- Afișăm cititorii care au împrumutat cărți de poezie
+-- We display the readers who have borrowed poetry books
 SELECT Readers.LastName, Readers.FirstName
 FROM Readers
 JOIN BookLoans ON Readers.ReaderID = BookLoans.ReaderID
 JOIN Books ON BookLoans.BookID = Books.BookID
 WHERE Books.Genre = 'Poetry';
 
--- Afișăm toate cărțile și genurile lor, folosind tabela Genres
+-- We display all the books and their genres, using the Genres table
 SELECT Books.Title, Genres.GenreName
 FROM Books
 JOIN Genres ON Books.GenreID = Genres.GenreID;
 
--- Selectăm toți autorii care au mai mult de două cărți în bibliotecă
+-- We select all authors who have more than two books in the library
 SELECT Authors.LastName, Authors.FirstName, COUNT(Books.BookID) AS NumberOfBooks
 FROM Authors
 JOIN Books ON Authors.AuthorID = Books.AuthorID
 GROUP BY Authors.AuthorID
 HAVING COUNT(Books.BookID) > 2;
 
--- Selectăm cititorii care au împrumutat o carte și nu au returnat-o încă
+-- We select the readers who have borrowed a book and have not returned it yet
 SELECT Readers.LastName, Readers.FirstName, Books.Title AS BorrowedBook
 FROM Readers
 JOIN BookLoans ON Readers.ReaderID = BookLoans.ReaderID
